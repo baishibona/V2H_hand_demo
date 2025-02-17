@@ -37,6 +37,8 @@
 #include <unistd.h>
 #include <cmath>
 
+
+
 using namespace std;
 /*****************************************
 * Global Variables
@@ -844,15 +846,32 @@ double angleBetweenVectors(const std::vector<double>& v1, const std::vector<doub
     return angleDegrees;
 }
 
+/* Round angles given step size */
+void round_angles(vector<float>& raw_angles, float step_size) {
+
+    for(int i=0;i<raw_angles.size();i++) {
+        int rounded_number = int(raw_angles[i]/step_size) * step_size;
+        raw_angles[i] = rounded_number;
+    }
+    raw_angles[5] = 160;
+    return;
+}
+
+
 /* Calculate Angles based on 2d hand landmarks */
 vector<float> calculate_angles(uint16_t id_x_local[NUM_OUTPUT_C][NUM_MAX_PERSON], uint16_t id_y_local[NUM_OUTPUT_C][NUM_MAX_PERSON]) {
     vector<float> res = {180.0, 180.0, 180.0, 180.0, 50.0, 165.0}; // dafault angel
-    res[0] = get_norm({float(id_x_local[20][0]) - float(id_x_local[17][0]), float(id_y_local[20][0] - id_y_local[17][0])}) / get_norm({float(id_x_local[17][0]) - float(id_x_local[1][0]), float(id_y_local[17][0] - id_y_local[1][0])}) * 180.0 * 1.8;
-    res[1] = get_norm({float(id_x_local[16][0]) - float(id_x_local[13][0]), float(id_y_local[16][0] - id_y_local[13][0])}) / get_norm({float(id_x_local[13][0]) - float(id_x_local[1][0]), float(id_y_local[13][0] - id_y_local[1][0])}) * 180.0 * 1.8;
-    res[2] = get_norm({float(id_x_local[12][0]) - float(id_x_local[9][0]), float(id_y_local[12][0] - id_y_local[9][0])}) / get_norm({float(id_x_local[9][0]) - float(id_x_local[1][0]), float(id_y_local[9][0] - id_y_local[1][0])}) * 180.0 * 1.8;
-    res[3] = get_norm({float(id_x_local[8][0]) - float(id_x_local[5][0]), float(id_y_local[8][0] - id_y_local[5][0])}) / get_norm({float(id_x_local[5][0]) - float(id_x_local[1][0]), float(id_y_local[5][0] - id_y_local[1][0])}) * 180.0 * 1.8;
-    res[4] = angleBetweenVectors({float(id_x_local[2][0]) - float(id_x_local[1][0]), float(id_y_local[2][0]) - float(id_y_local[1][0])}, {float(id_x_local[2][0]) - float(id_x_local[4][0]), float(id_y_local[2][0]) - float(id_y_local[4][0])}) - 130.0;
-    res[5] = angleBetweenVectors({float(id_x_local[1][0]) - float(id_x_local[5][0]), float(id_y_local[1][0]) - float(id_y_local[5][0])}, {float(id_x_local[1][0]) - float(id_x_local[2][0]), float(id_y_local[1][0]) - float(id_y_local[2][0])}) + 90.0;
+    res[0] = (angleBetweenVectors({float(id_x_local[20][0]) - float(id_x_local[18][0]), float(id_y_local[20][0]) - float(id_y_local[18][0])}, {float(id_x_local[17][0]) - float(id_x_local[18][0]), float(id_y_local[17][0]) - float(id_y_local[18][0])}) - 20) * 1.25;
+    // get_norm({float(id_x_local[20][0]) - float(id_x_local[18][0]), float(id_y_local[20][0] - id_y_local[18][0])}) / get_norm({float(id_x_local[17][0]) - float(id_x_local[18][0]), float(id_y_local[17][0] - id_y_local[18][0])});
+    res[1] = (angleBetweenVectors({float(id_x_local[16][0]) - float(id_x_local[14][0]), float(id_y_local[16][0]) - float(id_y_local[14][0])}, {float(id_x_local[13][0]) - float(id_x_local[14][0]), float(id_y_local[13][0]) - float(id_y_local[14][0])}) - 20) * 1.25;
+    // get_norm({float(id_x_local[16][0]) - float(id_x_local[14][0]), float(id_y_local[16][0] - id_y_local[14][0])}) / get_norm({float(id_x_local[13][0]) - float(id_x_local[14][0]), float(id_y_local[13][0] - id_y_local[14][0])});
+    res[2] = (angleBetweenVectors({float(id_x_local[12][0]) - float(id_x_local[10][0]), float(id_y_local[12][0]) - float(id_y_local[10][0])}, {float(id_x_local[9][0]) - float(id_x_local[10][0]), float(id_y_local[9][0]) - float(id_y_local[10][0])}) - 20) * 1.25;
+    // get_norm({float(id_x_local[12][0]) - float(id_x_local[10][0]), float(id_y_local[12][0] - id_y_local[10][0])}) / get_norm({float(id_x_local[9][0]) - float(id_x_local[10][0]), float(id_y_local[9][0] - id_y_local[10][0])});
+    res[3] = (angleBetweenVectors({float(id_x_local[8][0]) - float(id_x_local[6][0]), float(id_y_local[8][0]) - float(id_y_local[6][0])}, {float(id_x_local[5][0]) - float(id_x_local[6][0]), float(id_y_local[5][0]) - float(id_y_local[6][0])}) - 20) * 1.25;
+    // get_norm({float(id_x_local[8][0]) - float(id_x_local[6][0]), float(id_y_local[8][0] - id_y_local[6][0])}) / get_norm({float(id_x_local[5][0]) - float(id_x_local[6][0]), float(id_y_local[5][0] - id_y_local[6][0])});
+    res[4] = (angleBetweenVectors({float(id_x_local[4][0]) - float(id_x_local[2][0]), float(id_y_local[4][0]) - float(id_y_local[2][0])}, {float(id_x_local[1][0]) - float(id_x_local[2][0]), float(id_y_local[1][0]) - float(id_y_local[2][0])}) - 100.0) * 1.25 - 30;
+    res[5] = angleBetweenVectors({float(id_x_local[2][0]) - float(id_x_local[1][0]), float(id_y_local[2][0]) - float(id_y_local[1][0])}, {float(id_x_local[5][0]) - float(id_x_local[1][0]), float(id_y_local[5][0]) - float(id_y_local[1][0])}) * 2.5 + 70.0;
+    round_angles(res, 5.0);
     return res;
 }
 
