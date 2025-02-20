@@ -64,7 +64,7 @@
 /* YOLOX Skip Function
    0: YOLOX Running
    1: YOLOX Skip        */
-#define INF_YOLOX_SKIP (1)
+#define INF_YOLOX_SKIP (0)
 
 /*****************************************
 * Static Variables for MMPose HRNet

@@ -1004,22 +1004,27 @@ int8_t print_result(Image* img)
     str = stream.str();
     img->write_string_rgb(str, 1, TEXT_WIDTH_OFFSET_L, LINE_HEIGHT_OFFSET + (LINE_HEIGHT * 2), CHAR_SCALE_LARGE, WHITE_DATA);
 #endif /* DISP_AI_FRAME_RATE */
-
-    vector<float> hand_angles = calculate_angles(id_x_local, id_y_local);
-    vector<char> dex_hand_commands = get_serial_commands_based_on_angles(hand_angles);
-    std::copy(dex_hand_commands.begin(), dex_hand_commands.end(), DEX_HAND_CMD);
-    write(serial_port, DEX_HAND_CMD, sizeof(DEX_HAND_CMD));
-    printf("sending dex hand commands through serial.\n");
-    for(float a : hand_angles) {
-        printf("%f ,", a);
+    if (ppl_count > 0) {
+        vector<float> hand_angles = calculate_angles(id_x_local, id_y_local);
+        vector<char> dex_hand_commands = get_serial_commands_based_on_angles(hand_angles);
+        std::copy(dex_hand_commands.begin(), dex_hand_commands.end(), DEX_HAND_CMD);
+        write(serial_port, DEX_HAND_CMD, sizeof(DEX_HAND_CMD));
+        printf("sending dex hand commands through serial.\n");
+        // Print angles to screen
+        stream.str("");
+        stream << "hand angles: " << hand_angles[0] << ", " << hand_angles[1] << ", " << hand_angles[2] << ", " << hand_angles[3] << ", " << hand_angles[4] << ", " << hand_angles[5];
+        str = stream.str();
+        index++;
+        img->write_string_rgb(str, 2, TEXT_WIDTH_OFFSET_R, LINE_HEIGHT_OFFSET + (LINE_HEIGHT * index), CHAR_SCALE_LARGE, 0xFFF000u);
+    } else {
+        stream.str("");
+        stream << "No hand detected";
+        str = stream.str();
+        index++;
+        img->write_string_rgb(str, 2, TEXT_WIDTH_OFFSET_R, LINE_HEIGHT_OFFSET + (LINE_HEIGHT * index), CHAR_SCALE_LARGE, 0xFFF000u);
     }
-    printf("\n");
-    // Print angles
-    stream.str("");
-    stream << "hand angles: " << hand_angles[0] << ", " << hand_angles[1] << ", " << hand_angles[2] << ", " << hand_angles[3] << ", " << hand_angles[4] << ", " << hand_angles[5];
-    str = stream.str();
-    index++;
-    img->write_string_rgb(str, 2, TEXT_WIDTH_OFFSET_R, LINE_HEIGHT_OFFSET + (LINE_HEIGHT * index), CHAR_SCALE_LARGE, 0xFFF000u);
+
+
 
 
 #ifdef DEBUG_TIME_FLG
