@@ -36,7 +36,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <cmath>
-
+#include <chrono>
 
 
 using namespace std;
@@ -124,6 +124,8 @@ unsigned char FIVE[] = {235, 144, 1, 15, 18, 206, 5, 192, 3, 192, 3, 192, 3, 192
 unsigned char DEX_HAND_CMD[20];
 
 #define PI 3.14159265
+
+std::string output_file_name = "please_name_the_output_file.csv";
 
 /*****************************************
 * Function Name : timedifference_msec
@@ -923,6 +925,21 @@ vector<char> get_serial_commands_based_on_angles(vector<float> angles) {
         printf("%d ", c);
     }
     printf("\n");
+
+    // save the command to a file, with the name as the date and time
+    std::ofstream file;    
+    file.open(output_file_name, std::ios::app);
+    double time_since_epoch_seconds
+    = std::chrono::duration_cast<std::chrono::duration<double>>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
+    
+    // write time to file in float format
+    file << std::fixed << std::setprecision(9) << time_since_epoch_seconds << ", ";
+    for(auto c : angles) {
+        file << c << ", ";
+    }
+    file << std::endl;
+    file.close();
 
     return res;
 }
@@ -2007,7 +2024,7 @@ main_proc_end:
     return main_ret;
 }
 
-/* Initialize Serial */
+/* Initialize Serial port for the dexterous hand.*/
 int Init_Serial() {
     serial_port = open("/dev/ttyUSB0", O_RDWR);
     struct termios tty;
@@ -2110,11 +2127,26 @@ int32_t main(int32_t argc, char * argv[])
     printf("Argument : <DRP0_max_freq_factor> = %d\n", drp_max_freq);
     printf("Argument : <AI-MAC_freq_factor> = %d\n", drpai_freq);
 
+    /*Serial Port Initialization*/
     if(Init_Serial() != 0) {
         return 1;
     }
-    write(serial_port, ONE, sizeof(TWO));
+    // Send command ONE to the hand, can change this to any command
+    write(serial_port, ONE, sizeof(ONE));
     
+    double time_since_epoch_seconds
+    = std::chrono::duration_cast<std::chrono::duration<double>>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
+    std::time_t time_tt = static_cast<std::time_t>(time_since_epoch_seconds);
+    //Convert to local time
+    std::tm local_tm = *std::localtime(&time_tt);
+    // Format the date and time
+    char date_time[100];
+    std::strftime(date_time, sizeof(date_time), "%Y-%m-%d %H:%M:%S", &local_tm);
+    std::string date_time_str(date_time);
+    output_file_name = "hand_commands_" + date_time_str + ".csv";
+    printf("Output file name: %s\n", output_file_name);
+
     /*DRP-AI Driver Open*/
     /*For YOLOX*/
     errno = 0;
